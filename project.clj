@@ -4,7 +4,8 @@
   :license {:name "The MIT License"
             :url "http://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/clojure "1.3.0"]
-                 [ring/ring-codec "1.0.0"]]
+                 [ring/ring-codec "1.0.0"]
+                 [clj-http "1.1.2"]]
   :plugins [[codox "0.8.10"]]
   :codox {:project {:name "Ring-Mock"}}
   :aliases {"test-all" ["with-profile" "default:+1.4:+1.5:+1.6" "test"]}

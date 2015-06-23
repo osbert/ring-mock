@@ -1,5 +1,6 @@
 (ns ring.mock.request-test
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :as io]
+            [clojure.string :as s])
   (:use clojure.test
         ring.mock.request))
 
@@ -119,4 +120,10 @@
     (let [resp (body {} (.getBytes "foo"))]
       (is (instance? java.io.InputStream (:body resp)))
       (is (= (slurp (:body resp)) "foo"))
-      (is (= (:content-length resp) 3)))))
+      (is (= (:content-length resp) 3))))
+  (testing "file upload body"
+    (let [resp (body {} (->FileUpload "f" "file contents"))]
+      (is (instance? java.io.InputStream (:body resp)))
+      (is (= (-> resp :content-type (s/split #";") first) "multipart/form-data"))
+      (is (> (:content-length resp) 13))
+      (is (re-find #"file contents" (slurp (:body resp)))))))

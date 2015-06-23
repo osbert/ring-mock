@@ -1,7 +1,9 @@
 (ns ring.mock.request
   "Functions to create mock request maps."
   (:require [clojure.string :as string]
-            [ring.util.codec :as codec]))
+            [ring.util.codec :as codec]
+            [clj-http.multipart :as multipart])
+  (:import java.io.ByteArrayOutputStream))
 
 (defn- encode-params
   "Turn a map of parameters into a urlencoded string."
@@ -68,6 +70,20 @@
   (-> request
       (content-type "application/x-www-form-urlencoded")
       (body (encode-params params))))
+
+(defrecord FileUpload
+    ;; name is the parameter name for your file upload
+    ;; content can be a File, InputStream, ByteArray, or String(representing file contents)
+    [name content])
+
+(defmethod body FileUpload [request file-upload]
+  (let [out (ByteArrayOutputStream.)
+        mpe (multipart/create-multipart-entity [file-upload])]
+    (.writeTo mpe out)
+    (-> request
+        (body (.toByteArray out))
+        (content-type (.getValue (.getContentType mpe)))
+        (content-length (.getContentLength mpe)))))
 
 (defmethod body nil [request params]
   request)
